@@ -65,7 +65,7 @@ partial class Build
 				                      {
 				                      	"stryker-config": {
 				                      		"project-info": {
-				                      			"name": "github.com/aweXpect/aweXpect.Json",
+				                      			"name": "github.com/Testably/aweXpect.Json",
 				                      			"module": "{{project.Key.Name}}",
 				                      			"version": "{{branchName}}"
 				                      		},
@@ -121,7 +121,7 @@ partial class Build
 
 			string body = "## :alien: Mutation Results"
 			              + Environment.NewLine
-			              + $"[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FaweXpect%2FaweXpect.Json%2Fpull/{prId}/merge)](https://dashboard.stryker-mutator.io/reports/github.com/aweXpect/aweXpect.Json/pull/{prId}/merge)"
+			              + $"[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FTestably%2FaweXpect.Json%2Fpull/{prId}/merge)](https://dashboard.stryker-mutator.io/reports/github.com/Testably/aweXpect.Json/pull/{prId}/merge)"
 			              + Environment.NewLine
 			              + MutationCommentBody;
 			File.WriteAllText(ArtifactsDirectory / "PR_Comment.md", body);
@@ -152,7 +152,7 @@ partial class Build
 				using var client = new HttpClient();
 				client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 				// https://stryker-mutator.io/docs/General/dashboard/#send-a-report-via-curl
-				await client.PutAsync($"https://dashboard.stryker-mutator.io/api/reports/github.com/aweXpect/aweXpect.Json/{branchName}?module={project.Key.Name}",
+				await client.PutAsync($"https://dashboard.stryker-mutator.io/api/reports/github.com/Testably/aweXpect.Json/{branchName}?module={project.Key.Name}",
 						new StringContent(reportComment, new MediaTypeHeaderValue("application/json")));
 			}
 
