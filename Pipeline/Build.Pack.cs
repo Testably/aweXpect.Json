@@ -29,11 +29,11 @@ partial class Build
 			string[] lines = File.ReadAllLines(Solution.Directory / "README.md");
 			sb.AppendLine(lines.First());
 			sb.AppendLine(
-				$"[![Changelog](https://img.shields.io/badge/Changelog-v{version}-blue)](https://github.com/aweXpect/aweXpect.Json/releases/tag/v{version})");
+				$"[![Changelog](https://img.shields.io/badge/Changelog-v{version}-blue)](https://github.com/Testably/aweXpect.Json/releases/tag/v{version})");
 			foreach (string line in lines.Skip(1))
 			{
 				if (line.StartsWith(
-					    "[![Build](https://github.com/aweXpect/aweXpect.Json/actions/workflows/build.yml") ||
+					    "[![Build](https://github.com/Testably/aweXpect.Json/actions/workflows/build.yml") ||
 				    line.StartsWith("[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure"))
 				{
 					continue;
