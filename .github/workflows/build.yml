@@ -22,6 +22,7 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: Run unit tests (windows)
                 if: matrix.os == 'windows-latest'
                 run: ./build.ps1 CodeCoverage
@@ -36,7 +37,7 @@ jobs:
                     path: |
                         ./Artifacts/*
                         ./TestResults/*.trx
-    
+
     api-tests:
         name: "API tests"
         runs-on: ubuntu-latest
@@ -52,6 +53,7 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: API checks
                 run: ./build.sh ApiChecks
             -   name: Upload artifacts
@@ -79,9 +81,10 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: Run mutation tests
                 run: ./build.sh MutationTests MutationTestDashboard
-    
+
     benchmarks:
         name: "Benchmarks"
         runs-on: ubuntu-latest
@@ -99,9 +102,10 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: Run benchmarks
                 run: ./build.sh Benchmarks
-    
+
     static-code-analysis:
         name: "Static code analysis"
         runs-on: ubuntu-latest
@@ -119,9 +123,10 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: Run sonarcloud analysis
                 run: ./build.sh CodeAnalysis
-    
+
     publish-test-results:
         name: "Publish Tests Results"
         needs: [ api-tests, unit-tests ]
@@ -140,7 +145,7 @@ jobs:
                 with:
                     comment_mode: always
                     files: "artifacts/**/**/*.trx"
-    
+
     pack:
         name: "Pack"
         runs-on: ubuntu-latest
@@ -157,6 +162,7 @@ jobs:
                     dotnet-version: |
                         8.0.x
                         9.0.x
+                        10.0.x
             -   name: Pack nuget packages
                 run: ./build.sh Pack
             -   name: Upload packages
@@ -165,7 +171,7 @@ jobs:
                 with:
                     path: Artifacts/Packages
                     name: Packages
-    
+
     push:
         name: "Push"
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
@@ -209,7 +215,7 @@ jobs:
                     tag_name: ${{ steps.tag.outputs.release_version }}
                     token: ${{ secrets.GITHUB_TOKEN }}
                     generate_release_notes: true
-    
+
     finalize-release:
         name: "Finalize release"
         if: startsWith(github.ref, 'refs/tags/v')
@@ -238,4 +244,3 @@ jobs:
                         state: released
                     skip-label: |
                         state: released
-

@@ -15,7 +15,7 @@ partial class Build
 		{
 			ReportGenerator(s => s
 				.SetProcessToolPath(NuGetToolPathResolver.GetPackageExecutable("ReportGenerator", "ReportGenerator.dll",
-					framework: "net8.0"))
+					framework: "net10.0"))
 				.SetTargetDirectory(TestResultsDirectory / "reports")
 				.AddReports(TestResultsDirectory / "**/coverage.cobertura.xml")
 				.AddReportTypes(ReportTypes.OpenCover)
