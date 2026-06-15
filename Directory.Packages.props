@@ -5,7 +5,7 @@
 	<ItemGroup>
 		<PackageVersion Include="aweXpect" Version="2.31.0"/>
 		<PackageVersion Include="aweXpect.Core" Version="2.29.0"/>
-		<PackageVersion Include="System.Text.Json" Version="9.0.2"/>
+		<PackageVersion Include="System.Text.Json" Version="10.0.9"/>
 	</ItemGroup>
 	<ItemGroup>
 		
