@@ -137,7 +137,7 @@ internal sealed class JsonMatchType(JsonOptions options) : IStringMatchType
 	{
 		if (expected is null)
 		{
-			throw Tracing.WriteException(new ArgumentNullException(null, "The expected JSON cannot be null."));
+			throw Tracing.WriteException(new ArgumentNullException(nameof(expected), "The expected JSON cannot be null."));
 		}
 
 		try

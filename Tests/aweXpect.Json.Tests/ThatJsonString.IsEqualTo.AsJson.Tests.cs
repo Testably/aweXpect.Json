@@ -187,7 +187,7 @@ public sealed partial class ThatJsonString
 						=> await That(subject).IsEqualTo(null).AsJson();
 
 					await That(Act).Throws<ArgumentNullException>()
-						.WithMessage("The expected JSON cannot be null.")
+						.WithMessage("The expected JSON cannot be null.*").AsWildcard()
 						.Because("a null expected value is no JSON to compare with");
 				}
 
@@ -422,7 +422,7 @@ public sealed partial class ThatJsonString
 						=> await That(subject).IsEqualTo(expected).AsJson();
 
 					await That(Act).Throws<ArgumentNullException>()
-						.WithMessage("The expected JSON cannot be null.");
+						.WithMessage("The expected JSON cannot be null.*").AsWildcard();
 				}
 
 				[Theory]
