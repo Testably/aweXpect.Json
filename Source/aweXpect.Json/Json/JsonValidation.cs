@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Core.EvaluationContext;
-using aweXpect.Helpers;
+using aweXpect.Core.Extending;
 
 namespace aweXpect.Json;
 
@@ -557,7 +557,7 @@ internal class JsonValidation : IJsonObjectResult,
 		}
 
 		return $"{it} differed as{(_failures.Count > 1 ? Environment.NewLine + " " : "")}{GetFailures()}"
-			.IndentFollowingLines(indentation);
+			.Indent(indentation, false);
 	}
 
 	private string GetFailures()

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Core.Constraints;
 using aweXpect.Core.EvaluationContext;
+using aweXpect.Core.Extending;
 using aweXpect.Helpers;
 using aweXpect.Json;
 using aweXpect.Results;
@@ -20,7 +21,7 @@ public static partial class ThatJsonElement
 	public static AndOrResult<JsonElement, IThat<JsonElement>> IsObject(
 		this IThat<JsonElement> source)
 		=> new(
-			source.Get().ExpectationBuilder.AddConstraint((it, grammar) =>
+			source.Get().ExpectationBuilder.AddConstraint(static (it, grammar) =>
 				new IsValueKindConstraint(it, grammar, JsonValueKind.Object)),
 			source);
 
@@ -44,8 +45,8 @@ public static partial class ThatJsonElement
 		}
 
 		return new AndOrResult<JsonElement, IThat<JsonElement>>(
-			source.Get().ExpectationBuilder.AddConstraint((it, grammar) =>
-				new IsObjectConstraint(it, grammar, expectation, jsonOptions)),
+			source.Get().ExpectationBuilder.AddConstraint((Expectation: expectation, Options: jsonOptions),
+				static (s, it, grammar) => new IsObjectConstraint(it, grammar, s.Expectation, s.Options)),
 			source);
 	}
 

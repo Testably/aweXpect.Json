@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using aweXpect.Core;
 using aweXpect.Core.Constraints;
 using aweXpect.Core.EvaluationContext;
+using aweXpect.Core.Extending;
 using aweXpect.Helpers;
 using aweXpect.Json;
 using aweXpect.Results;
@@ -21,7 +22,7 @@ public static partial class ThatNullableJsonElement
 	public static AndOrResult<JsonElement?, IThat<JsonElement?>> IsArray(
 		this IThat<JsonElement?> source)
 		=> new(
-			source.Get().ExpectationBuilder.AddConstraint((it, grammar) =>
+			source.Get().ExpectationBuilder.AddConstraint(static (it, grammar) =>
 				new IsValueKindConstraint(it, grammar, JsonValueKind.Array)),
 			source);
 
@@ -46,8 +47,8 @@ public static partial class ThatNullableJsonElement
 		}
 
 		return new AndOrResult<JsonElement?, IThat<JsonElement?>>(
-			source.Get().ExpectationBuilder.AddConstraint((it, grammar) =>
-				new IsArrayConstraint(it, grammar, expectation, jsonOptions)),
+			source.Get().ExpectationBuilder.AddConstraint((Expectation: expectation, Options: jsonOptions),
+				static (s, it, grammar) => new IsArrayConstraint(it, grammar, s.Expectation, s.Options)),
 			source);
 	}
 
