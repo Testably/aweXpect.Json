@@ -453,7 +453,8 @@ internal class JsonValidation : IJsonObjectResult,
 	{
 		string currentPath = CurrentPath;
 		_expectationBuilder.Add((sb, grammars)
-			=> sb.Append(And(grammars)).Append(currentPath).Append(" is ").Append(Format(kind)));
+			=> sb.Append(And(grammars)).Append(currentPath).Append(" is ")
+				.Append(Format(kind, grammars & ~ExpectationGrammars.Plural)));
 		JsonElement? currentElement = _currentElements.Pop();
 
 		if (currentElement != null && currentElement.Value.ValueKind != kind)
@@ -544,16 +545,16 @@ internal class JsonValidation : IJsonObjectResult,
 	private void GetNestedExpectation(StringBuilder stringBuilder, ExpectationGrammars grammars)
 		=> GetExpectation(stringBuilder, grammars & ~ExpectationGrammars.Plural);
 
-	public string GetFailure(string it, string? indentation)
+	public string GetFailure(string it, ExpectationGrammars grammars, string? indentation)
 	{
 		if (_element is null)
 		{
-			return $"{it} was <null>";
+			return $"{it}{grammars.SubjectVerb(it, " was", " were")} <null>";
 		}
 
 		if (_element.Value.ValueKind != _valueKind)
 		{
-			return $"{it} was {Format(_element.Value.ValueKind)}";
+			return $"{it}{grammars.SubjectVerb(it, " was ", " were ")}{Format(_element.Value.ValueKind)}";
 		}
 
 		return $"{it} differed as{(_failures.Count > 1 ? Environment.NewLine + " " : "")}{GetFailures()}"

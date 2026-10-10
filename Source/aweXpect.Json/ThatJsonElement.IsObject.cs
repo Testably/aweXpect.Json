@@ -86,12 +86,12 @@ public static partial class ThatJsonElement
 			=> _jsonValidation?.GetExpectation(stringBuilder, Grammars);
 
 		protected override void AppendNormalResult(StringBuilder stringBuilder, string? indentation = null)
-			=> stringBuilder.Append(_jsonValidation?.GetFailure(It, indentation));
+			=> stringBuilder.Append(_jsonValidation?.GetFailure(It, Grammars, indentation));
 
 		protected override void AppendNegatedExpectation(StringBuilder stringBuilder, string? indentation = null)
 			=> _jsonValidation?.GetExpectation(stringBuilder, Grammars);
 
 		protected override void AppendNegatedResult(StringBuilder stringBuilder, string? indentation = null)
-			=> stringBuilder.Append(It).Append(" was");
+			=> stringBuilder.Append(It).Append(Grammars.SubjectVerb(It, " was", " were"));
 	}
 }
