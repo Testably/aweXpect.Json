@@ -25,7 +25,7 @@ The root namespace is `aweXpect`, so the expectations show up next to the built-
 - `ThatJsonElement.*.cs`, `ThatNullableJsonElement.*.cs`, `ThatJsonNode.*.cs`: expectations on `JsonElement`, `JsonElement?` and `JsonNode` (`Matches`, `MatchesExactly`, `IsObject`, `IsArray`, `IsString`, `IsNumber`, `IsBoolean`, `IsNull`). Each class is a `static partial class` with one file per expectation; the file without a suffix holds the shared constraints.
 - `ThatJsonObject.*.cs`: expectations on any object (`IsJsonSerializable`, `IsJsonSerializedAs`).
 - `Json/` (namespace `aweXpect.Json`):
-  - `JsonOptions`, `JsonOptionsExtensions`, `JsonNumbersWithinOptions`, `JsonNumberTolerance`: the comparison options such as `IgnoringArrayOrder()`, `IgnoringMember(...)` and `NumbersWithin(...)`, listed in the "JSON options" context of a failure.
+  - `JsonOptions`, `JsonOptionsExtensions`, `JsonNumbersWithinOptions`, `JsonNumberTolerance`: the comparison options such as `IgnoringArrayOrder()`, `IgnoringMember(...)` and `ComparingNumbersWithin(...)`, listed in the "JSON options" context of a failure.
   - `JsonElementValidator`: compares two `JsonElement`s and reports each difference by its JSON path (`JsonPathSegment`).
   - `ExpectationJsonConverter`: serializes the expected value and the `It.Is...` expectations inside it; reflection-based, so guarded by `ReflectionFallback.IsSupported`.
   - `IJsonObjectResult`, `IJsonArrayResult`, `IJsonPropertyResult`: the fluent builders behind `IsObject(o => ...)` and `IsArray(a => ...)`.
