@@ -17,17 +17,17 @@
 		<NoWarn>701;1702;CA1845</NoWarn>
 	</PropertyGroup>
 
+	<!--
+	    The tests run on TUnit as executables of the Microsoft.Testing.Platform.
+	-->
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="xunit"/>
-		<PackageReference Include="xunit.runner.visualstudio">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.NET.Test.Sdk"/>
-		<PackageReference Include="coverlet.collector">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
+		<PackageReference Include="TUnit.Engine"/>
+		<PackageReference Include="Microsoft.Testing.Extensions.TrxReport"/>
+		<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage"/>
 		<PackageReference Include="aweXpect"/>
 		<PackageReference Include="Nullable">
 			<PrivateAssets>all</PrivateAssets>
@@ -37,6 +37,11 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="$(MSBuildThisFileDirectory)Shared/*.cs" Link="Shared/%(Filename)%(Extension)"/>
+		<Using Include="aweXpect.TestHelpers"/>
 	</ItemGroup>
 
 </Project>

@@ -9,11 +9,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Remove="xunit"/>
-		<PackageReference Remove="xunit.runner.visualstudio"/>
-		<PackageReference Include="NUnit"/>
-		<PackageReference Include="NUnit.Analyzers"/>
-		<PackageReference Include="NUnit3TestAdapter"/>
 		<PackageReference Include="aweXpect.Snapshots.PublicApi"/>
 	</ItemGroup>
 
