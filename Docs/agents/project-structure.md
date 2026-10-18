@@ -27,7 +27,7 @@ The root namespace is `aweXpect`, so the expectations show up next to the built-
 - `Json/` (namespace `aweXpect.Json`):
   - `JsonOptions`, `JsonOptionsExtensions`, `JsonNumbersWithinOptions`, `JsonNumberTolerance`: the comparison options such as `IgnoringArrayOrder()`, `IgnoringMember(...)` and `NumbersWithin(...)`, listed in the "JSON options" context of a failure.
   - `JsonElementValidator`: compares two `JsonElement`s and reports each difference by its JSON path (`JsonPathSegment`).
-  - `ExpectationJsonConverter`: serializes the expected value and the `It.Is...` expectations inside it; reflection-based, so guarded by `ReflectionFallback.IsSupported`.
+  - `ExpectationJsonConverter`: serializes the expected value and the `It.Is...` expectations inside it; JSON primitives, JSON values and collections of them are written directly, anything else by reflection, guarded by `ReflectionFallback.IsSupported`.
   - `IJsonObjectResult`, `IJsonArrayResult`, `IJsonPropertyResult`: the fluent builders behind `IsObject(o => ...)` and `IsArray(a => ...)`.
   - `JsonAwexpectCustomizationExtensions`: `Customize.aweXpect.Json()` with `DefaultJsonDocumentOptions` and `DefaultJsonSerializerOptions`.
   - `JsonValidation`, `JsonMatchType`, `MembersToIgnoreTracker`, `NamedMemberToIgnore`: internal helpers.
