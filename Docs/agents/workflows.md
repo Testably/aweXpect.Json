@@ -12,24 +12,26 @@ The SDK comes from `global.json`. CI also installs the 8.0 and 9.0 runtimes; ins
 
 ## Unit tests
 
-`Tests/aweXpect.Json.Tests` uses xUnit v2 and targets `net8.0`, `net10.0` and `net48` (`Tests/Directory.Build.props`). Filter by the nested class of the expectation:
+`Tests/aweXpect.Json.Tests` uses TUnit and targets `net8.0`, `net10.0` and `net48` (`Tests/Directory.Build.props`). All test projects run on the Microsoft.Testing.Platform, which `global.json` selects for `dotnet test`, so the project is passed with `--project`. Filter by the nested class of the expectation with `--treenode-filter` (`/<assembly>/<namespace>/<class>/<test>`):
 
 ```powershell
-dotnet test Tests/aweXpect.Json.Tests -f net10.0 --filter "FullyQualifiedName~ThatJsonElement+IsNull"
-dotnet test Tests/aweXpect.Json.Tests -f net48 --filter "FullyQualifiedName~ThatJsonElement+IsNull"
+dotnet test --project Tests/aweXpect.Json.Tests -f net10.0
+dotnet test --project Tests/aweXpect.Json.Tests -f net10.0 --treenode-filter "/*/*/ThatJsonElement+IsNull+*/*"
+dotnet test --project Tests/aweXpect.Json.Tests -f net48 --treenode-filter "/*/*/ThatJsonElement+IsNull+*/*"
 ```
 
-The test classes are nested as `ThatJsonElement` > `IsNull` > `Tests`, so the filter uses `+` between the outer classes. Use `--no-build` after a fresh `dotnet build`. Set `$env:DOTNET_CLI_UI_LANGUAGE = "en-US"` for English output on a localized machine.
+The test classes are nested as `ThatJsonElement` > `IsNull` > `Tests`, so the class name uses `+` between the nested classes. `dotnet run --project Tests/aweXpect.Json.Tests -f net10.0 -- <options>` starts the same executable. Use `--no-build` after a fresh `dotnet build`. Set `$env:DOTNET_CLI_UI_LANGUAGE = "en-US"` for English output on a localized machine.
 
 ## Public API tests
 
-`Tests/aweXpect.Json.Api.Tests` (NUnit, `net8.0`) writes the public API of the `Source/aweXpect.Json` build for every target framework in `Source/Directory.Build.props` and compares it with the snapshots `ApiApprovalTests.aweXpect%2EJson.<framework>.awexpect-snapshot.txt` (`aweXpect.Snapshots.PublicApi`). The project builds all target frameworks of the library itself.
+`Tests/aweXpect.Json.Api.Tests` (TUnit, `net8.0`) writes the public API of the `Source/aweXpect.Json` build for every target framework in `Source/Directory.Build.props` and compares it with the snapshots `ApiApprovalTests.aweXpect%2EJson.<framework>.awexpect-snapshot.txt` (`aweXpect.Snapshots.PublicApi`). The project builds all target frameworks of the library itself.
 
 ```powershell
-dotnet test Tests/aweXpect.Json.Api.Tests
+dotnet test --project Tests/aweXpect.Json.Api.Tests
+dotnet test --project Tests/aweXpect.Json.Api.Tests --treenode-filter "/*/*/ApiApprovalTests/AcceptApiChanges"
 ```
 
-To accept an intentional change, run the explicit test `AcceptApiChanges`, or run the tests with the environment variable `AWEXPECT_ACCEPT_SNAPSHOTS` set to `all`, then review and commit the changed snapshot files. The tests read the `Debug` build when compiled in `Debug` and the `Release` build otherwise.
+To accept an intentional change, run the explicit test `AcceptApiChanges` (second command; a run without this filter skips it, because TUnit runs an explicit test only when every test that the filter selects is explicit), or run the tests with the environment variable `AWEXPECT_ACCEPT_SNAPSHOTS` set to `all`, then review and commit the changed snapshot files. The tests read the `Debug` build when compiled in `Debug` and the `Release` build otherwise.
 
 ## AOT smoke tests
 
@@ -55,7 +57,7 @@ dotnet run -c Release --project Benchmarks/aweXpect.Json.Benchmarks -- --filter 
 
 ## Mutation tests
 
-`./build.ps1 MutationTests` installs `dotnet-stryker` into `TestResults/dotnet-stryker` and mutates `Source/aweXpect.Json` against `Tests/aweXpect.Json.Tests` on `net10.0` (mutation level `Advanced`). Off `main` it only mutates changes since `main`. The run is slow; leave it to CI unless a mutation report is needed. The report goes to `Artifacts/Stryker`.
+`./build.ps1 MutationTests` installs `dotnet-stryker` into `TestResults/dotnet-stryker` and mutates `Source/aweXpect.Json` against `Tests/aweXpect.Json.Tests` and `Tests/aweXpect.Json.Api.Tests` on `net10.0` (mutation level `Advanced`), with Stryker's runner for the Microsoft.Testing.Platform (`--test-runner mtp`). The Stryker version is the `PackageDownload` of `dotnet-stryker` in `Pipeline/Build.csproj`. Off `main` it only mutates changes since `main`. The run is slow; leave it to CI unless a mutation report is needed. The report goes to `Artifacts/Stryker`.
 
 ## Documentation
 
@@ -72,15 +74,15 @@ Always pass a target: without one, the pipeline runs the defaults `ApiChecks`, `
 | Target | Does |
 |---|---|
 | `Compile` | Cleans `Artifacts/` and `TestResults/`, restores, calculates the version with GitVersion and builds the solution. |
-| `UnitTests` | Runs the unit tests on all .NET target frameworks with coverage, and the `net48` tests with the xUnit console runner on Windows only. |
-| `CodeCoverage` | `UnitTests` plus an OpenCover report in `TestResults/reports`. |
-| `ApiChecks` | Runs the public API tests. |
+| `UnitTests` | Runs the unit tests with `dotnet test` on every target framework (`net48` on Windows only), each writing `<project>_<framework>.trx` and `<project>_<framework>.cobertura.xml` to `TestResults`. |
+| `CodeCoverage` | `UnitTests` plus a SonarQube coverage report in `TestResults/reports`. |
+| `ApiChecks` | Runs the public API tests and writes `TestResults/aweXpect.Json.Api.Tests.trx`. |
 | `AotSmokeTests` | Runs the smoke tests, then publishes them with Native AOT and runs the executable. |
 | `Benchmarks` | Runs the benchmarks (`BenchmarkDotNet`) and logs the report (`BenchmarkResult`). |
-| `MutationTests` | Runs Stryker (`MutationTestExecution`) and prepares the PR comment (`MutationComment`). |
+| `MutationTests` | Runs Stryker and prepares the PR comment in `Artifacts`. |
 | `Pack` | Builds the package with a README whose badges point to the release (`UpdateReadme`) and moves it to `Artifacts/Packages`. |
 | `CodeAnalysis` | SonarCloud analysis; needs `SonarToken`, used by CI only. |
-| `BenchmarkComment`, `MutationTestDashboard` | Download the CI artifacts and post or upload the results; used by `ci-analysis.yml` only. |
+| `BenchmarkComment`, `MutationTestsComment`, `MutationTestsDashboard` | Download the CI artifacts and post or upload the results; used by `ci-analysis.yml`, and `MutationTestsDashboard` also by `build.yml`. |
 
 `Build.cs` uses `[Solution(GenerateProjects = true)]`, so projects are referenced as `Solution.Tests.aweXpect_Json_Tests`; a new project in `aweXpect.Json.slnx` becomes available the same way.
 

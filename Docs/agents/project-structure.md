@@ -5,15 +5,16 @@
 | Path | Contains |
 |---|---|
 | `Source/aweXpect.Json/` | The library and the only shipped package. |
-| `Tests/aweXpect.Json.Tests/` | Unit tests (xUnit v2). |
-| `Tests/aweXpect.Json.Api.Tests/` | Public API snapshot tests (NUnit). |
+| `Tests/aweXpect.Json.Tests/` | Unit tests (TUnit). |
+| `Tests/Shared/` | Helpers compiled into the test projects (`Tests/Directory.Build.props`). |
+| `Tests/aweXpect.Json.Api.Tests/` | Public API snapshot tests (TUnit). |
 | `Tests/Aot/aweXpect.Json.Aot/` | Native AOT smoke tests as a console application. |
 | `Benchmarks/aweXpect.Json.Benchmarks/` | BenchmarkDotNet benchmarks. |
 | `Pipeline/` | The Fallout build pipeline, run through `build.ps1`/`build.sh`. |
 | `Docs/pages/` | User documentation, published to the docs site. |
 | `Docs/agents/` | Guides for authors and agents, not published. |
 
-Shared MSBuild settings live in `Directory.Build.props` (strong naming), `Source/Directory.Build.props` (target frameworks, package metadata, warnings as errors, trimming and AOT flags), `Tests/Directory.Build.props` and `Tests/Aot/Directory.Build.props`.
+Shared MSBuild settings live in `Directory.Build.props` (strong naming), `Source/Directory.Build.props` (target frameworks, package metadata, warnings as errors, trimming and AOT flags), `Tests/Directory.Build.props` (TUnit, shared by the unit and API tests) and `Tests/Aot/Directory.Build.props`.
 
 ## Library
 
@@ -37,7 +38,7 @@ The root namespace is `aweXpect`, so the expectations show up next to the built-
 ## Tests
 
 - Unit test files mirror the source files: `ThatJsonElement.IsNull.cs` is tested in `ThatJsonElement.IsNull.Tests.cs` as the nested class `ThatJsonElement.IsNull.Tests`. Shared helpers such as `ThatJsonElement.FromString(...)` sit in the file without a suffix. Option and customization tests are in `Json/`.
-- Failure tests assert `Throws<XunitException>().WithMessage(...)` with the full message as a raw string literal.
+- Failure tests assert `Throws<FailException>().WithMessage(...)` with the full message as a raw string literal; aweXpect throws its own `FailException` under TUnit.
 - `Tests/aweXpect.Json.Api.Tests/Helper.cs` locates the library build per target framework by searching for `aweXpect.Json.slnx` above the output directory.
 - `Tests/Aot/aweXpect.Json.Aot/Checks.cs` lists the smoke checks; each states the result that must hold both under the JIT and published with Native AOT, including the failure when the reflection fallback is switched off.
 

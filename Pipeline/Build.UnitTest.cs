@@ -1,11 +1,9 @@
+using System;
 using System.Linq;
 using Fallout.Common;
-using Fallout.Common.IO;
 using Fallout.Solutions;
 using Fallout.Common.Tooling;
 using Fallout.Common.Tools.DotNet;
-using Fallout.Common.Tools.Xunit;
-using static Fallout.Common.Tools.Xunit.XunitTasks;
 using static Fallout.Common.Tools.DotNet.DotNetTasks;
 
 // ReSharper disable AllUnderscoreLocalParameterName
@@ -14,6 +12,8 @@ namespace Build;
 
 partial class Build
 {
+	const string NetFramework = "net48";
+
 	Target UnitTests => _ => _
 		.DependsOn(DotNetFrameworkUnitTests)
 		.DependsOn(DotNetUnitTests);
@@ -29,19 +29,7 @@ partial class Build
 		.OnlyWhenDynamic(() => EnvironmentInfo.IsWin)
 		.Executes(() =>
 		{
-			string[] testAssemblies = UnitTestProjects
-				.SelectMany(project =>
-					project.Directory.GlobFiles(
-						$"bin/{(Configuration == Configuration.Debug ? "Debug" : "Release")}/net48/*.Tests.dll"))
-				.Select(p => p.ToString())
-				.ToArray();
-
-			Assert.NotEmpty(testAssemblies.ToList());
-
-			Xunit2(s => s
-				.SetFramework("net48")
-				.AddTargetAssemblies(testAssemblies)
-			);
+			RunUnitTests(framework => framework == NetFramework);
 		});
 
 	Target DotNetUnitTests => _ => _
@@ -49,24 +37,42 @@ partial class Build
 		.DependsOn(Compile)
 		.Executes(() =>
 		{
-			string[] excludedFrameworks = ["net48",];
-			DotNetTest(s => s
-					.SetConfiguration(Configuration)
-					.SetProcessEnvironmentVariable("DOTNET_CLI_UI_LANGUAGE", "en-US")
-					.EnableNoBuild()
-					.SetDataCollector("XPlat Code Coverage")
-					.SetResultsDirectory(TestResultsDirectory)
-					.CombineWith(
-						UnitTestProjects,
-						(settings, project) => settings
-							.SetProjectFile(project)
-							.CombineWith(
-								project.GetTargetFrameworks()?.Except(excludedFrameworks),
-								(frameworkSettings, framework) => frameworkSettings
-									.SetFramework(framework)
-									.AddLoggers($"trx;LogFileName={project.Name}_{framework}.trx")
-							)
-					), completeOnFailure: true
-			);
+			RunUnitTests(framework => framework != NetFramework);
 		});
+
+	/// <summary>
+	///     Runs the unit tests for their matching target frameworks, each writing a TRX file and a Cobertura coverage
+	///     file named after the project and the target framework into the <see cref="TestResultsDirectory" />.
+	/// </summary>
+	/// <remarks>
+	///     <c>global.json</c> opts into the Microsoft.Testing.Platform, so <c>dotnet test</c> takes the project with
+	///     <c>--project</c> instead of as a positional argument.
+	/// </remarks>
+	void RunUnitTests(Func<string, bool> includeFramework)
+	{
+		(Project Project, string Framework)[] testRuns = UnitTestProjects
+			.SelectMany(project => (project.GetTargetFrameworks() ?? [])
+				.Where(includeFramework)
+				.Select(framework => (project, framework)))
+			.ToArray();
+
+		Assert.NotEmpty(testRuns);
+
+		DotNetTest(s => s
+				.SetConfiguration(Configuration)
+				.SetProcessEnvironmentVariable("DOTNET_CLI_UI_LANGUAGE", "en-US")
+				.EnableNoBuild()
+				.SetResultsDirectory(TestResultsDirectory)
+				.CombineWith(testRuns,
+					(settings, testRun) => settings
+						.SetFramework(testRun.Framework)
+						.AddProcessAdditionalArguments(
+							$"--project \"{testRun.Project.Path}\"",
+							"--report-trx",
+							$"--report-trx-filename {testRun.Project.Name}_{testRun.Framework}.trx",
+							"--coverage",
+							"--coverage-output-format cobertura",
+							$"--coverage-output {testRun.Project.Name}_{testRun.Framework}.cobertura.xml")),
+			completeOnFailure: true);
+	}
 }

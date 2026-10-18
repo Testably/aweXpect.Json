@@ -20,6 +20,7 @@ Correctness is a must. The other goals are strong defaults and win in this order
 ## Validation
 
 - Run the relevant tests before pushing. Tests run on `net8.0`, `net10.0` and `net48`; check `net48` when using newer language features (records work through the `IsExternalInit` polyfill).
+- All tests run on TUnit and the Microsoft.Testing.Platform, which `global.json` selects for `dotnet test`: pass the project with `--project` and filter with `--treenode-filter`.
 - Public API changes: run `Tests/aweXpect.Json.Api.Tests`, accept intentional changes with the explicit `AcceptApiChanges` test or `AWEXPECT_ACCEPT_SNAPSHOTS=all`, and commit the updated `*.awexpect-snapshot.txt` files. Never commit pending snapshots.
 - Every failure test pins the full message with `.WithMessage(...)`, never a bare `Throws<T>()`.
 - Behaviour changes in AOT-relevant code: run the AOT smoke tests (`./build.ps1 AotSmokeTests`).
