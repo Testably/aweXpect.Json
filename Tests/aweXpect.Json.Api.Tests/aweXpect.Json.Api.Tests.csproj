@@ -14,10 +14,20 @@
 		<PackageReference Include="NUnit"/>
 		<PackageReference Include="NUnit.Analyzers"/>
 		<PackageReference Include="NUnit3TestAdapter"/>
-		<PackageReference Include="PublicApiGenerator"/>
+		<PackageReference Include="aweXpect.Snapshots.PublicApi"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Expected\"/>
+		<!-- The netstandard2.0 build references a newer System.Text.Json than the runtime of the tests provides. -->
+		<PackageReference Include="System.Text.Json"/>
 	</ItemGroup>
+
+	<!--
+	    The tests read the builds of all target frameworks of the referenced projects, but a project reference only
+	    builds the one that matches the tests. Without the target framework, the same builds as in the solution are
+	    requested, which MSBuild runs only once; DispatchToInnerBuilds builds them without packing.
+	-->
+	<Target Name="BuildAllTargetFrameworksOfReferencedProjects" AfterTargets="Build">
+		<MSBuild Projects="@(ProjectReference)" Targets="DispatchToInnerBuilds" RemoveProperties="TargetFramework"/>
+	</Target>
 </Project>
